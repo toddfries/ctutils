@@ -1,0 +1,91 @@
+#!/usr/bin/perl
+
+# Copyright (c) 2011 Todd T. Fries <todd@fries.net>
+#
+# Permission to use, copy, modify, and distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+my $verbose = 0;
+if ($ARGV[0] eq "-v") {
+	$verbose ++;
+	shift @ARGV;
+}
+
+my $mdname=$ARGV[0];
+my @dirs;
+my @files;
+my @symlinks;
+my @hardlinks;
+
+open(CT,"ct -tvf ${mdname}|");
+while(<CT>) {
+	my $line;
+	chomp($line = $_);
+	if ($line =~ m/^version: /) {
+		next;
+	}
+	if ($line =~ m/^d.*\s+(\S+)$/) {
+		if ($verbose > 0) {
+			printf "DIR: %s\n",$1;
+		}
+		if (! -d $1) {
+			push @dirs,$1;
+		}
+		next;
+	}
+	$line =~ m/^.*\s+\S{4,4}\s+(.*) shas:/;
+	if (defined($1)) {
+		if ($verbose > 0) {
+			printf "FILE: %s\n",$1;
+		}
+		# XXX use regex to prune filename off, compare timing with and
+		#     without the below
+		#if (!grep {/^$1$/} @dirs) {
+		#	push @files,$1;
+		#}
+			
+		if (! -f $1) {
+			push @files,$1;
+		}
+		next;
+	}
+	$line =~ m/^.*\s+\S{4,4}\s+(.*) ->/;
+	if (defined($1)) {
+		if ($verbose > 0) {
+			printf "SYMLINK: %s\n",$1;
+		}
+		if (! -l $1) {
+			push @symlinks,$1;
+		}
+		next;
+	}
+	$line =~ m/^.*\s+\S{4,4}\s+(.*) ==/;
+	if (defined($1)) {
+		if ($verbose > 0) {
+			printf "HARDLINK: %s\n",$1;
+		}
+		if (! -l $1) {
+			push @hardlinks,$1;
+		}
+		next;
+	}
+	printf "LINE: %s\n",$line;
+	exit(0);
+}
+close(CT);
+foreach my $path ((@dirs, @files, @symlinks, @hardlinks)) {
+	$recoverargs .= " ".$path;
+}
+if ($verbose > 1) {
+	print "system(\"ct -xvpf $recoverargs\");\n";
+}
+system("ct -xvpf $recoverargs");
