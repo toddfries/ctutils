@@ -15,8 +15,18 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 my $verbose = 0;
-if ($ARGV[0] eq "-v") {
-	$verbose ++;
+my $donothing = 0;
+while ($#ARGV > -1) {
+	if ($ARGV[0] eq "-v") {
+		$verbose ++;
+		shift @ARGV;
+		next;
+	}
+	last;
+}
+
+if ($ARGV[0] eq "-n") {
+	$donothing=1;
 	shift @ARGV;
 }
 
@@ -33,19 +43,23 @@ while(<CT>) {
 	if ($line =~ m/^version: /) {
 		next;
 	}
-	if ($line =~ m/^d.*\s+(\S+)$/) {
-		if ($verbose > 0) {
+	$line =~ m/^d[rwx\-]{9,9}\s+\S+\s+\S+\s+\S{3,3}\s+\S{3,3}\s+\d{1,2}\s+[\d:]{8,8}\s+\d{4,4}\s(.*)$/;
+	if (defined($1)) {
+		if ($verbose > 1) {
 			printf "DIR: %s\n",$1;
 		}
 		if (! -d $1) {
+			if ($verbose > 0) {
+				printf "DIR: %s\n",$1;
+			}
 			push @dirs,$1;
 		}
 		next;
 	}
-	$line =~ m/^.*\s+\S{4,4}\s+(.*) shas:/;
+	$line =~ m/^[rwx\-]{10,10}\s+\S+\s+\S+\s+\S{3,3}\s+\S{3,3}\s+\d{1,2}\s+[\d:]{8,8}\s+\d{4,4}\s(.*)\ssz:/;
 	if (defined($1)) {
-		if ($verbose > 0) {
-			printf "FILE: %s\n",$1;
+		if ($verbose > 1) {
+			printf "FILE! %s\n",$1;
 		}
 		# XXX use regex to prune filename off, compare timing with and
 		#     without the below
@@ -53,27 +67,36 @@ while(<CT>) {
 		#	push @files,$1;
 		#}
 			
-		if (! -f $1) {
+		if (! -f "$1") {
+			if ($verbose > 0) {
+				printf "FILE: %s\n",$1;
+			}
 			push @files,$1;
 		}
 		next;
 	}
-	$line =~ m/^.*\s+\S{4,4}\s+(.*) ->/;
+	$line =~ m/^l[rwx\-]{9,9}\s+\S+\s+\S+\s+\S{3,3}\s+\S{3,3}\s+\d{1,2}\s+[\d:]{8,8}\s+\d{4,4}\s(.*)\s->/;
 	if (defined($1)) {
-		if ($verbose > 0) {
+		if ($verbose > 1) {
 			printf "SYMLINK: %s\n",$1;
 		}
-		if (! -l $1) {
+		if (! -l "$1") {
+			if ($verbose > 0) {
+				printf "SYMLINK: %s\n",$1;
+			}
 			push @symlinks,$1;
 		}
 		next;
 	}
-	$line =~ m/^.*\s+\S{4,4}\s+(.*) ==/;
+	$line =~ m/^l[rwx\-]{9,9}\s+\S+\s+\S+\s+\S{3,3}\s+\S{3,3}\s+\d{1,2}\s+[\d:]{8,8}\s+\d{4,4}\s(.*)\s==/;
 	if (defined($1)) {
-		if ($verbose > 0) {
+		if ($verbose > 1) {
 			printf "HARDLINK: %s\n",$1;
 		}
-		if (! -l $1) {
+		if (! -l "$1") {
+			if ($verbose > 0) {
+				printf "HARDLINK: %s\n",$1;
+			}
 			push @hardlinks,$1;
 		}
 		next;
@@ -84,8 +107,11 @@ while(<CT>) {
 close(CT);
 foreach my $path ((@dirs, @files, @symlinks, @hardlinks)) {
 	$recoverargs .= " ".$path;
+	if ($verbose > 1) {
+		printf "%s\n",$path;
+	}
 }
-if ($verbose > 1) {
-	print "system(\"ct -xvpf $recoverargs\");\n";
+#print "system(\"ct -xvpf $recoverargs\");\n";
+if ($donothing == 0) {
+	system("ct -xvpf $recoverargs");
 }
-system("ct -xvpf $recoverargs");
