@@ -49,11 +49,11 @@ while(<CT>) {
 	$line =~ m/^d[rwx\-]{9,9}\s+\S+\s+\S+\s+\S{3,3}\s+\S{3,3}\s+\d{1,2}\s+[\d:]{8,8}\s+\d{4,4}\s(.*)$/;
 	if (defined($1)) {
 		if ($verbose > 1) {
-			printf "DIR: %s\n",$1;
+			printf "DIR! %s\n",$1;
 		}
 		if (! -d $1) {
 			if ($verbose > 0) {
-				printf "DIR: %s\n",$1;
+				printf "Queueing DIR: %s\n",$1;
 			}
 			push @dirs,$1;
 		}
@@ -72,7 +72,7 @@ while(<CT>) {
 			
 		if (! -f "$1") {
 			if ($verbose > 0) {
-				printf "FILE: %s\n",$1;
+				printf "Queueing FILE: %s\n",$1;
 			}
 			push @files,$1;
 		}
@@ -81,11 +81,11 @@ while(<CT>) {
 	$line =~ m/^l[rwx\-]{9,9}\s+\S+\s+\S+\s+\S{3,3}\s+\S{3,3}\s+\d{1,2}\s+[\d:]{8,8}\s+\d{4,4}\s(.*)\s->/;
 	if (defined($1)) {
 		if ($verbose > 1) {
-			printf "SYMLINK: %s\n",$1;
+			printf "SYMLINK! %s\n",$1;
 		}
 		if (! -l "$1") {
 			if ($verbose > 0) {
-				printf "SYMLINK: %s\n",$1;
+				printf "Queueing SYMLINK: %s\n",$1;
 			}
 			push @symlinks,$1;
 		}
@@ -94,11 +94,11 @@ while(<CT>) {
 	$line =~ m/^l[rwx\-]{9,9}\s+\S+\s+\S+\s+\S{3,3}\s+\S{3,3}\s+\d{1,2}\s+[\d:]{8,8}\s+\d{4,4}\s(.*)\s==/;
 	if (defined($1)) {
 		if ($verbose > 1) {
-			printf "HARDLINK: %s\n",$1;
+			printf "HARDLINK! %s\n",$1;
 		}
 		if (! -l "$1") {
 			if ($verbose > 0) {
-				printf "HARDLINK: %s\n",$1;
+				printf "Queueing HARDLINK: %s\n",$1;
 			}
 			push @hardlinks,$1;
 		}
@@ -114,7 +114,7 @@ foreach my $path ((@dirs,
 		@symlinks,
 		@hardlinks)) {
 	$recoverargs .= " ".$path;
-	if ($verbose > 1) {
+	if ($verbose > 0) {
 		printf "Extracting '%s'\n",$path;
 	}
 	if ($donothing == 0) {
