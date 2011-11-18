@@ -120,7 +120,8 @@ foreach my $path ((@dirs,
 	if ($donothing == 0) {
 		my $ret=system("ct -xvpf $mdname \"$path\"");
 		if ($ret > 0) {
-			exit($ret);
+			printf "system(ct -xvpf %s "%s")=%d\n",$mdname,$path,$ret;
+			# exit($ret);
 		}
 	}
 }
