@@ -14,6 +14,9 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+use strict;
+use warnings;
+
 my $verbose = 0;
 my $donothing = 0;
 while ($#ARGV > -1) {
@@ -105,13 +108,20 @@ while(<CT>) {
 	exit(0);
 }
 close(CT);
-foreach my $path ((@dirs, @files, @symlinks, @hardlinks)) {
+my $recoverargs;
+foreach my $path ((@dirs,
+		@files,
+		@symlinks,
+		@hardlinks)) {
 	$recoverargs .= " ".$path;
 	if ($verbose > 1) {
-		printf "%s\n",$path;
+		printf "Extracting '%s'\n",$path;
+	}
+	if ($donothing == 0) {
+		my $ret=system("ct -xvpf $mdname \"$path\"");
+		if ($ret > 0) {
+			exit($ret);
+		}
 	}
 }
 #print "system(\"ct -xvpf $recoverargs\");\n";
-if ($donothing == 0) {
-	system("ct -xvpf $recoverargs");
-}
