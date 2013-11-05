@@ -109,20 +109,33 @@ while(<CT>) {
 }
 close(CT);
 my $recoverargs;
+my $paths;
+my $pathcount = 0;
 foreach my $path ((@dirs,
 		@files,
 		@symlinks,
 		@hardlinks)) {
 	$recoverargs .= " ".$path;
-	if ($verbose > 0) {
-		printf "Extracting '%s'\n",$path;
+	if (defined($paths)) {
+		$paths .= sprintf(" \"%s\"",$path);
+	} else {
+		$paths = sprintf("\"%s\"",$path);
 	}
-	if ($donothing == 0) {
-		my $ret=system("ct -xvpf $mdname \"$path\"");
-		if ($ret > 0) {
-			printf "system(ct -xvpf %s \"%s\")=%d\n",$mdname,$path,$ret;
-			# exit($ret);
+
+	if ($pathcount++ > 30) {	
+		if ($verbose > 0) {
+			printf "Extracting '%s'\n",$paths;
 		}
+		if ($donothing == 0) {
+			my $cmd=sprintf "ct -xRvpf %s %s",$mdname,$paths;
+			my $ret=system($cmd);
+			if ($ret > 0) {
+				printf "system(%s)=%d\n",$cmd,$ret;
+				# exit($ret);
+			}
+		}
+		$paths = undef;
+		$pathcount = 0;
 	}
 }
 #print "system(\"ct -xvpf $recoverargs\");\n";
