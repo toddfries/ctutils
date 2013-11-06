@@ -18,10 +18,15 @@ internally, but until that is working, there is the following
 'ctfastextract' script which:
 
 1) loads the list of files (and types) into memory
+
 2) utilizes an exclusion regex '-e <regex>' to ignore paths
+
 3) utilizes an inclusion regex '-i <regex>' to ignore all but the inclusion paths (does nothing if not specified)
+
 4) orders paths as dirs, files, symlinks, hardlinks
+
 5) extracts up to 30 paths in one go
+
 6) utilizes a total path limit '-l <count>' if a person wishes to stop
    before completely extracting everything
 
@@ -40,6 +45,7 @@ Future enhancements include:
 
 1) using the size of the file in the filesystem vs metadata to determine if an
    extraction is needed for a locally truncated file or somesuch
+
 2) using the hash of the file in the filesystem vs metadata to determine if an
    extraction is needed (cyphertite provides this via -tvv..)
 
