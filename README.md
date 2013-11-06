@@ -1,19 +1,21 @@
 Tools like cyphertite are great.
 
-Sometimes they need some wrapper scripts to make them even better.
+Sometimes they need a wrapper script to make them even better.
 
-Since it helps to explain with a real world example, lets say you have
-a media subdirectory with tons of data archived via cyphertite.
+Since it helps to explain with a real world example, lets say you have a
+media subdirectory with tons of data archived via cyphertite.
 
 Lets say you lost your disk.
 
-Lets say you are not online 24/7 and you reboot frequently to test os bits.
+Lets say you are not online 24/7 and you reboot frequently to test os
+kernels.
 
-You don't have time to extract the whole archive in one go, so how can you
-make progress by extracting a few files at a time?
+You don't have time to extract the whole archive in one go, so how can
+you make progress by extracting a few files at a time?
 
-I have filed a bug with cyphertite to do the equivalent internally, but until
-that is working, there is the following 'ctfastextract' script which:
+I have filed an issue[1] with cyphertite to do the equivalent
+internally, but until that is working, there is the following
+'ctfastextract' script which:
 
 1) loads the list of files (and types) into memory
 2) utilizes an exclusion regex '-e <regex>' to ignore paths
@@ -46,6 +48,7 @@ requests or whatever.
 
 Thanks!
 
+[1] https://github.com/conformal/cyphertite/issues/58
 -- 
 Todd Fries .. todd@fries.net
 
