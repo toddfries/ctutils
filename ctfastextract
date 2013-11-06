@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Copyright (c) 2011 Todd T. Fries <todd@fries.net>
+# Copyright (c) 2011,2013 Todd T. Fries <todd@fries.net>
 #
 # Permission to use, copy, modify, and distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -83,12 +83,6 @@ while(<CT>) {
 		if ($verbose > 1) {
 			printf "FILE! %s\n",$1;
 		}
-		# XXX use regex to prune filename off, compare timing with and
-		#     without the below
-		#if (!grep {/^$1$/} @dirs) {
-		#	push @files,$1;
-		#}
-			
 		if (! -f "$1") {
 			if ($verbose > 0) {
 				printf "Queueing FILE: %s\n",$1;
