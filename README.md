@@ -58,6 +58,7 @@ Thanks!
 -- 
 Todd Fries .. todd@fries.net
 
+<pre>
  ____________________________________________
 |                                            \  1.636.410.0632 (voice)
 | Free Daemon Consulting, LLC                \  1.405.227.9094 (voice)
@@ -68,3 +69,4 @@ Todd Fries .. todd@fries.net
                                                  
               37E7 D3EB 74D0 8D66 A68D  B866 0326 204E 3F42 004A
                         http://todd.fries.net/pgp.txt
+</pre>
