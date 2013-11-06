@@ -17,21 +17,30 @@
 use strict;
 use warnings;
 
+# Specific to OpenBSD
+use OpenBSD::Getopt;
+
+our $opt_e; # lines that match should skip
+our $opt_i; # lines that match should be processed, everything else skipped
+our $opt_l;
+our $opt_n;
+our $opt_v;
+
+getopts('e:i:l:nv');
+
 my $verbose = 0;
 my $donothing = 0;
-while ($#ARGV > -1) {
-	if ($ARGV[0] eq "-v") {
-		$verbose ++;
-		shift @ARGV;
-		next;
-	}
-	last;
-}
+my $rege;
+my $regi;
 
-if ($ARGV[0] eq "-n") {
-	$donothing=1;
-	shift @ARGV;
+if (defined($opt_v)) {
+	$verbose = $opt_v;
 }
+if (defined($opt_n)) {
+	$donothing=1;
+}
+$rege = $opt_e;
+$regi = $opt_i;
 
 my $mdname=$ARGV[0];
 my @dirs;
@@ -39,12 +48,22 @@ my @files;
 my @symlinks;
 my @hardlinks;
 
-open(CT,"ct -tvf ${mdname}|");
+open(CT,"ct -tvf ${mdname} 2>&1 |");
 while(<CT>) {
 	my $line;
 	chomp($line = $_);
-	if ($line =~ m/^version: /) {
+	if ($line =~ m/^version: / || $line =~ m/ version: 3 level: [0-9]/) {
 		next;
+	}
+	if (defined($rege)) {
+		if ($line =~ m/$rege/) {
+			next;
+		}
+	}
+	if (defined($regi)) {
+		if (! ($line =~ m/$regi/)) {
+			next;
+		}
 	}
 	$line =~ m/^d[rwx\-]{9,9}\s+\S+\s+\S+\s+\S{3,3}\s+\S{3,3}\s+\d{1,2}\s+[\d:]{8,8}\s+\d{4,4}\s(.*)$/;
 	if (defined($1)) {
@@ -111,6 +130,7 @@ close(CT);
 my $recoverargs;
 my $paths;
 my $pathcount = 0;
+my $totalpathcount = 0;
 foreach my $path ((@dirs,
 		@files,
 		@symlinks,
@@ -121,7 +141,11 @@ foreach my $path ((@dirs,
 	} else {
 		$paths = sprintf("\"%s\"",$path);
 	}
-
+	if (defined($opt_l)) {
+		if ($totalpathcount++ > $opt_l) {
+			exit(0);
+		}
+	}
 	if ($pathcount++ > 30) {	
 		if ($verbose > 0) {
 			printf "Extracting '%s'\n",$paths;
@@ -138,4 +162,3 @@ foreach my $path ((@dirs,
 		$pathcount = 0;
 	}
 }
-#print "system(\"ct -xvpf $recoverargs\");\n";
