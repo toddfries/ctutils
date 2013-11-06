@@ -41,7 +41,7 @@ Future enhancements include:
 1) using the size of the file in the filesystem vs metadata to determine if an
    extraction is needed for a locally truncated file or somesuch
 2) using the hash of the file in the filesystem vs metadata to determine if an
-   extraction is needed (can cyphertite provide this via -tvf?)
+   extraction is needed (cyphertite provides this via -tvv..)
 
 If you have other ideas or improvements, please send me diffs or pull
 requests or whatever.
