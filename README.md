@@ -1,3 +1,14 @@
+# deprecated
+
+So, cyphertite was a thing that is no more.  I like to preserve history,
+so this will remain, in the event something else exists that may find this
+attempt at a wrapper that makes things better is useful for.
+
+Anything below or in the rest of this github repository must be considered
+historic code useful at a time, but never more.
+
+# historic content below
+
 Tools like cyphertite are great.
 
 Sometimes they need a wrapper script to make them even better.
